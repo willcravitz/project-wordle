@@ -24,8 +24,8 @@ function Game() {
 
 	return (
 		<>
-			<GuessInput addGuess={addGuess} />
 			<GuessList guesses={guesses} />
+			<GuessInput addGuess={addGuess} />
 		</>
 	);
 }
