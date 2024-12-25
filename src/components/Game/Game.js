@@ -7,18 +7,29 @@ import GuessInput from '../GuessInput/GuessInput';
 import GuessList from '../GuessList/GuessList';
 import LostBanner from '../LostBanner/LostBanner';
 import WonBanner from '../WonBanner/WonBanner';
-
-// Pick a random word on every pageload.
-const answer = sample(WORDS);
-// To make debugging easier, we'll log the solution in the console.
-console.info({ answer });
+import Keyboard from '../Keyboard/Keyboard';
+import { checkGuess } from '../../game-helpers';
 
 function Game() {
+	const [answer, setAnswer] = React.useState(() => sample(WORDS));
+	const [guess, setGuess] = React.useState('');
 	const [guesses, setGuesses] = React.useState([]);
-	// one of 'progress', 'lost', 'won'
+	// 'progress' | 'lost' | 'won'
 	const [status, setStatus] = React.useState('progress');
 
-	function addGuess(guess) {
+	const checkedGuesses = guesses.map((guess) =>
+		checkGuess(guess, answer)
+	);
+
+	function restart() {
+		const newAnswer = sample(WORDS);
+		setAnswer(newAnswer);
+		setGuess('');
+		setGuesses([]);
+		setStatus('progress');
+	}
+
+	function addGuess() {
 		const nextGuesses = [...guesses, guess];
 		setGuesses(nextGuesses);
 		if (guess === answer) {
@@ -28,12 +39,32 @@ function Game() {
 		}
 	}
 
+	function addLetter(letter) {
+		if (status === 'progress' && guess.length <= 4) {
+			const nextGuess = guess + letter;
+			setGuess(nextGuess);
+		}
+	}
+
 	return (
 		<>
-			<GuessList guesses={guesses} answer={answer} />
-			<GuessInput status={status} addGuess={addGuess} />
-			{status === 'lost' && <LostBanner answer={answer} />}
-			{status === 'won' && <WonBanner numGuesses={guesses.length} />}
+			<GuessList checkedGuesses={checkedGuesses} />
+			<GuessInput
+				status={status}
+				guess={guess}
+				setGuess={setGuess}
+				addGuess={addGuess}
+			/>
+			<Keyboard
+				checkedGuesses={checkedGuesses}
+				addLetter={addLetter}
+			/>
+			{status === 'lost' && (
+				<LostBanner answer={answer} restart={restart} />
+			)}
+			{status === 'won' && (
+				<WonBanner numGuesses={guesses.length} restart={restart} />
+			)}
 		</>
 	);
 }

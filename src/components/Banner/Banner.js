@@ -1,7 +1,12 @@
 import React from 'react';
 
-function Banner({ type, children }) {
-	return <div className={`${type} banner`}>{children}</div>;
+function Banner({ type, action, actionText, children }) {
+	return (
+		<div className={`${type} banner`}>
+			{children}
+			{action && <button onClick={action}>{actionText}</button>}
+		</div>
+	);
 }
 
 export default Banner;
